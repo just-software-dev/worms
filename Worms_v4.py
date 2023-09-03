@@ -1,8 +1,7 @@
-'''golubenko98@gmail.com'''
 from tkinter import Tk, Canvas
 import random, math
 
-# x и y - координаты центра круга
+# x и y - circle center coordinates
 class Circle(object):
     def __init__(self,x,y,r,color):
         self.x=x
@@ -11,19 +10,19 @@ class Circle(object):
         self.color=color
         self.pict=canvas.create_oval([x-r,y+r], [x+r,y-r], fill=color, width=0)
 
-    # Перемещает круг в точку (x;y)
+    # Moves circle to the point (x;y)
     def Move(self,x,y):
         self.x=x
         self.y=y
         canvas.delete(self.pict)
         self.pict=canvas.create_oval([x-self.r,y+self.r], [x+self.r,y-self.r], fill=self.color, width=0)
 
-    # Удаляет круг
+    # Deletes circle
     def __del__(self):
         canvas.delete(self.pict)
 
 class Worm(object):
-    delay=10 # Сколько времени проходит между двумя вызовами метода Step() (милисекунды)
+    delay=10 # Deley between calling Step() (milliseconds)
     def __init__(self,x,y,v=5,length=7,r=10,colors=['green', 'yellow'], sex=True, strength=10):
         self.v=v
         self.angle=random.randint(1,360)
@@ -38,7 +37,7 @@ class Worm(object):
         self.worm=[Circle(x,y,abs(strength/10),colors[i%LenCol]) for i in range(length)]
 
     def Step(self):
-        if self.fert_rec > 0: # Восстановление после порождения нового червяка
+        if self.fert_rec > 0: # Recovery after making a worm
             self.fert_rec-=Worm.delay
         if self.old <= 0:
             Moving.deleteWorm(self)
@@ -49,13 +48,13 @@ class Worm(object):
         self.angle+=random.randint(-45,45)
         vx = self.v * math.cos(math.radians(self.angle))
         vy = self.v * math.sin(math.radians(self.angle))
-        if height-self.worm[0].r <= self.worm[0].y: # отскок от нижнего края
+        if height-self.worm[0].r <= self.worm[0].y: # bounce from the bottom edge
             self.angle=-90
-        elif self.worm[0].r >= self.worm[0].y: # отскок от верхнего края
+        elif self.worm[0].r >= self.worm[0].y: # bounce from the top edge
             self.angle=90
-        if width-self.worm[0].r <= self.worm[0].x: # отскок от правого края
+        if width-self.worm[0].r <= self.worm[0].x: # bounce from the right edge
             self.angle=180
-        elif self.worm[0].r >= self.worm[0].x: # отскок от левого края
+        elif self.worm[0].r >= self.worm[0].x: # bounce from the left edge
             self.angle=0
         for i in range(self.length-1,0,-1):
             self.worm[i].Move(self.worm[i-1].x, self.worm[i-1].y)
@@ -85,7 +84,7 @@ class Worm(object):
             return children
         return False
 
-    # Если головы двух червяков соприкасаются, и оба червяка готовы к порождению, то появляется новый червяк
+    # If heads of two worms touch and both worms are ready to make a worm, then a new worm will appear
     def Contact(worm_1,worm_2):
         if (worm_1.worm[0].x - worm_2.worm[0].x)**2 + (worm_1.worm[0].y - worm_2.worm[0].y)**2 <= (worm_1.worm[0].r + worm_2.worm[0].r)**2:
             if worm_1.sex == worm_2.sex and worm_1.colors != worm_2.colors:
@@ -120,20 +119,20 @@ class Moving(object):
     def deleteWorm(worm):
         Moving.worms.pop(Moving.worms.index(worm))
 
-    # Содаётся мир червяков
+    # Making worms world
     @staticmethod
     def Start():
         Worm.delay=Moving.delay
         Moving.Run()
 
-    # Левая кнопка мыши - появление нового червяка
+    # Left mouse button -> new worm
     @staticmethod
     def Button_1(event):
         random.shuffle(Moving.colors)
         newWorm = Worm(event.x, event.y, v=random.randint(2,7), length=random.randint(1,30), r=random.randint(10,20), colors=Moving.colors[:], sex = random.random() < 0.5, strength = random.randint(20,300))
         Moving.worms.append(newWorm)
 
-    # Заносит в список worms всех новых червяков
+    # add new worms to the worms list
     @staticmethod
     def WormsContact():        
         ln_worms=len(Moving.worms)
